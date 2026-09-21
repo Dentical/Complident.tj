@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <a href="#" class="logo">
+  <img src="https://th.bing.com/th/id/OIP.B0kUiXvvcztGCU9l-pbkEwAAAA?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="Логотип Complident" style="width: 40px; height: 40px; object-fit: contain; border-radius: 50%;"> 
+  Complident
+  </a>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complident — Стоматологическая клиника в Душанбе</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --secondary: #0d9488;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --border: #e2e8f0;
+      --shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: #fff; color: var(--dark); line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Шапка */
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-container { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; color: var(--primary); }
+    .nav-links { display: flex; gap: 20px; list-style: none; align-items: center; }
+    .nav-links a:hover { color: var(--primary); }
+    
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+    .btn { background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-staff { background: var(--dark); }
+    .btn-staff:hover { background: #334155; }
+    .btn-wa { background: #25d366; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-wa:hover { background: #20ba5a; }
+    .btn-danger { background: #ef4444; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }
+    .btn-danger:hover { background: #dc2626; }
+
+    /* Hero */
+    .hero { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 80px 0; }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+    .hero-content h1 { font-size: 40px; margin-bottom: 20px; }
+    .hero-image img { width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow); object-fit: cover; }
+
+    /* Секции */
+    section { padding: 70px 0; }
+    .section-title { text-align: center; margin-bottom: 40px; }
+    .section-title h2 { font-size: 32px; margin-bottom: 10px; }
+
+    /* Акции */
+    .promo-banner {
+      background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+      color: #fff; padding: 40px; border-radius: var(--radius);
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;
+    }
+
+    /* Преимущества */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+    .feature-card { padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; text-align: center; }
+    .feature-icon { font-size: 32px; color: var(--primary); margin-bottom: 15px; }
+
+    /* Калькулятор */
+    .calc-box { background: var(--light); padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); max-width: 700px; margin: 0 auto; }
+    .calc-option { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .calc-total { margin-top: 20px; font-size: 20px; font-weight: 700; text-align: right; color: var(--secondary); }
+
+    /* До / После */
+    .before-after-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    .ba-card { background: var(--light); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); text-align: center; }
+    .ba-images { display: flex; height: 200px; background: #cbd5e1; }
+    .ba-img { width: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; }
+    .ba-before { background: #94a3b8; }
+    .ba-after { background: var(--primary); }
+    .ba-desc { padding: 15px; }
+
+    /* FAQ */
+    .faq-container { max-width: 800px; margin: 0 auto; }
+    .faq-item { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
+    .faq-question { background: var(--light); padding: 18px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; }
+    .faq-answer { padding: 18px; display: none; border-top: 1px solid var(--border); background: #fff; }
+
+    /* Плавающие кнопки */
+    .floating-buttons { position: fixed; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 12px; z-index: 99; }
+    .float-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .float-wa { background: #25d366; }
+    .float-tg { background: #0088cc; }
+
+    /* Модалки */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-content { background: #fff; padding: 30px; border-radius: var(--radius); width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #64748b; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+    
+    option:disabled { color: #cbd5e1; background-color: #f1f5f9; }
+
+    /* Панель управления */
+    #staffPanel { display: none; background: #f1f5f9; min-height: 100vh; padding: 40px 0; }
+    .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-top: 20px; }
+    .dashboard-card { background: #fff; padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { background: var(--light); }
+
+    .badge-count { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 5px; }
+    .chat-box { height: 300px; border: 1px solid var(--border); border-radius: 8px; padding: 15px; overflow-y: auto; margin-bottom: 15px; background: var(--light); }
+    .chat-msg { background: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); font-size: 13px; }
+
+    #map { height: 400px; border-radius: var(--radius); border: 1px solid var(--border); }
+
+    @media (max-width: 768px) {
+      .hero-grid, .dashboard-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Публичный сайт для всех -->
+  <div id="clientWebsite">
+    <div class="floating-buttons">
+      <a href="https://wa.me/992900000000" class="float-btn float-wa" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+      <a href="https://t.me/" class="float-btn float-tg" target="_blank"><i class="fa-brands fa-telegram"></i></a>
+    </div>
+
+    <header>
+      <div class="container nav-container">
+        <a href="#" class="logo"><i class="fa-solid fa-tooth"></i> Complident</a>
+        <ul class="nav-links">
+          <li><a href="#features">Преимущества</a></li>
+          <li><a href="#calc">Калькулятор</a></li>
+          <li><a href="#results">Результаты</a></li>
+          <li><a href="#faq">Вопросы</a></li>
+          <li id="myAppointmentsNav" style="display: none;"><a href="#" onclick="openMyAppointmentsModal()" style="color: var(--primary); font-weight: 600;"><i class="fa-solid fa-calendar-check"></i> Мои записи</a></li>
+        </ul>
+        <div class="header-actions">
+          <button class="btn btn-staff" id="headerLoginBtn" onclick="openLoginModal()"><i class="fa-solid fa-user"></i> Вход</button>
+          <button class="btn" onclick="openModal()">Записаться</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <h1>Современная стоматология в Душанбе</h1>
+          <p>Качественное и безболезненное лечение зубов для всей семьи с гарантией результата.</p>
+          <br>
+          <button class="btn" onclick="openModal()">Выбрать время и записаться</button>
+        </div>
+        <div class="hero-image">
+          <img src="https://th.bing.com/th/id/OIP.73c9axUEny1EzGSekWmpjQHaEJ?w=319&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="Complident Стоматология">
+        </div>
+      </div>
+    </section>
+
+    <div class="container" style="margin-top: 40px;">
+      <div class="promo-banner">
+        <div>
+          <h3 style="font-size: 24px; margin-bottom: 8px;">Скидка 20% на профессиональную гигиену</h3>
+          <p>При первичной записи через наш сайт до конца месяца.</p>
+        </div>
+        <button class="btn" style="background: #fff; color: var(--dark);" onclick="openModal()">Получить скидку</button>
+      </div>
+    </div>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-title"><h2>Почему выбирают Complident</h2></div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3>100% Стерильность</h3>
+            <p>Многоступенчатая обработка инструментов.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-microscope"></i></div>
+            <h3>Новое оборудование</h3>
+            <p>Точная диагностика и эффективное лечение без боли.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-award"></i></div>
+            <h3>Гарантия на работу</h3>
+            <p>Официальная гарантия на все виды услуг.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="calc" style="background-color: var(--light);">
+      <div class="container">
+        <div class="section-title"><h2>Рассчитайте примерную стоимость</h2></div>
+        <div class="calc-box">
+          <div class="calc-option">
+            <label><input type="checkbox" value="150" onchange="calculateTotal()"> Консультация и осмотр</label>
+            <span>150 TJS</span>
+          </div>
+          <div class="calc-option">
+            <label><input type="checkbox" value="300" onchange="calculateTotal()"> Лечение кариеса</label>
+            <span>300 TJS</span>
+          </div>
+          <div class="calc-option">
+            <label><input type="checkbox" value="500" onchange="calculateTotal()"> Профессиональная чистка</label>
+            <span>500 TJS</span>
+          </div>
+          <div class="calc-option">
+            <label><input type="checkbox" value="1200" onchange="calculateTotal()"> Отбеливание зубов</label>
+            <span>1200 TJS</span>
+          </div>
+          <div class="calc-total" id="totalPrice">Итого: 0 TJS</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="container">
+        <div class="section-title"><h2>Результаты лечения</h2></div>
+        <div class="before-after-grid">
+          <div class="ba-card">
+            <div class="ba-images">
+              <div class="ba-img ba-before">ДО</div>
+              <div class="ba-img ba-after">ПОСЛЕ</div>
+            </div>
+            <div class="ba-desc"><h4>Отбеливание эмали</h4></div>
+          </div>
+          <div class="ba-card">
+            <div class="ba-images">
+              <div class="ba-img ba-before">ДО</div>
+              <div class="ba-img ba-after">ПОСЛЕ</div>
+            </div>
+            <div class="ba-desc"><h4>Установка брекетов</h4></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" style="background-color: var(--light);">
+      <div class="container">
+        <div class="section-title"><h2>Часто задаваемые вопросы</h2></div>
+        <div class="faq-container">
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">Больно ли лечить зубы? <i class="fa-solid fa-chevron-down"></i></div>
+            <div class="faq-answer">Мы используем современные анестетики, процедура абсолютно безболезненна.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">Есть ли гарантия на лечение? <i class="fa-solid fa-chevron-down"></i></div>
+            <div class="faq-answer">Да, мы предоставляем официальную гарантию.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacts">
+      <div class="container">
+        <div class="section-title"><h2>Наше расположение</h2><p>г. Душанбе (Режим работы: 08:00 — 20:00)</p></div>
+        <div id="map"></div>
+        <button class="btn" onclick="locateUserRoute()" style="margin-top: 15px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fa-solid fa-location-arrow"></i> Проложить маршрут от меня до клиники
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Панель управления (для сотрудников и админа) -->
+  <div id="staffPanel">
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Панель сотрудника <span id="currentUserTitle">()</span> <span id="badgeCount"></span></h2>
+        <button class="btn btn-staff" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Выйти из аккаунта</button>
+      </div>
+
+      <!-- Секция управления персоналом (доступна ТОЛЬКО Насиму/Админу) -->
+      <div id="adminStaffSection" style="display: none;" class="dashboard-card">
+        <h3 style="color: var(--primary); margin-bottom: 15px;"><i class="fa-solid fa-user-doctor"></i> Управление персоналом (Врачи клиники)</h3>
+        <form id="addDoctorForm" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 20px;">
+          <div class="form-group" style="margin: 0;">
+            <label>Имя врача</label>
+            <input type="text" id="newDocName" placeholder="Д-р Рахимов" required>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Логин для входа</label>
+            <input type="text" id="newDocLogin" placeholder="rahimov" required>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>Пароль</label>
+            <input type="password" id="newDocPass" placeholder="Пароль" required>
+          </div>
+          <button type="submit" class="btn" style="height: 46px;">Добавить врача</button>
+        </form>
+
+        <h4 style="margin-bottom: 10px; font-size: 15px; color: #64748b;">Активные врачи в системе:</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Имя врача</th>
+              <th>Логин</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody id="doctorsTableBody">
+            <tr><td colspan="3">Загрузка списка врачей...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Список записей -->
+        <div class="dashboard-card">
+          <h3>Онлайн-записи (Реальное время)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Имя</th>
+                <th>Телефон</th>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Действие</th>
+              </tr>
+            </thead>
+            <tbody id="liveAppointmentsTable">
+              <tr><td colspan="5">Загрузка данных...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Внутренний чат -->
+        <div class="dashboard-card">
+          <h3>Внутренний чат</h3>
+          <div class="chat-box" id="chatBox">
+            <div class="chat-msg"><strong>Д-р Рахимов:</strong> Коллеги, передайте снимки по пациенту на 11:00.</div>
+          </div>
+          <div style="display: flex; gap: 5px;">
+            <input type="text" id="chatInput" placeholder="Сообщение..." style="flex:1; padding: 8px; border:1px solid var(--border); border-radius: 6px;">
+            <button class="btn" id="sendChatBtn">Отправить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно: Мои записи пациента -->
+  <div class="modal" id="myAppointmentsModal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeMyApptsBtn">&times;</span>
+      <h3 style="margin-bottom: 15px;">Мои активные записи</h3>
+      <div id="patientAppointmentsList">
+        <p style="color: #64748b; font-size: 14px;">Загрузка ваших записей...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно записи пациента -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeBookingBtn">&times;</span>
+      <h3 style="margin-bottom: 15px;">Онлайн-запись</h3>
+      <form id="bookingForm">
+        <div class="form-group">
+          <label>Ваше имя</label>
+          <input type="text" id="patientName" readonly style="background: #f1f5f9; cursor: not-allowed;" placeholder="Автоматически из профиля">
+        </div>
+        <div class="form-group">
+          <label>Номер телефона</label>
+          <input type="tel" id="patientPhone" readonly style="background: #f1f5f9; cursor: not-allowed;" placeholder="Автоматически из профиля">
+        </div>
+        <div class="form-group">
+          <label>Выберите дату</label>
+          <input type="date" id="bookingDate" required>
+        </div>
+        <div class="form-group">
+          <label>Выберите время (Интервалы по 2 часа, режим работы до 20:00)</label>
+          <select id="bookingTime" required>
+            <option value="" disabled selected>Сначала выберите дату</option>
+            <option value="10:00 - 12:00">10:00 - 12:00</option>
+            <option value="12:00 - 14:00">12:00 - 14:00</option>
+            <option value="14:00 - 16:00">14:00 - 16:00</option>
+            <option value="16:00 - 18:00">16:00 - 18:00</option>
+            <option value="18:00 - 20:00">18:00 - 20:00</option>
+          </select>
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Затвердить запись</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Окно Входа -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeLoginBtn">&times;</span>
+      <h2 style="text-align: center; margin-bottom: 20px; font-weight: 700;">Вход</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <input type="text" id="staffLogin" placeholder="Имя / Логин" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="staffPassword" placeholder="Пароль" required>
+        </div>
+        <button type="submit" class="btn" style="width: 100%; margin-top: 5px;">Войти</button>
+      </form>
+      <div style="text-align: center; margin-top: 15px;">
+        <span style="font-size: 13px; color: #64748b;">Если нет аккаунта? </span>
+        <a href="#" id="openRegLink" style="font-size: 13px; color: var(--primary); font-weight: 600;">Создать</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно Регистрации -->
+  <div class="modal" id="registerModal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeRegBtn">&times;</span>
+      <h2 style="text-align: center; margin-bottom: 20px; font-weight: 700;">Регистрация</h2>
+      <form id="registerForm">
+        <div class="form-group">
+          <label>Имя</label>
+          <input type="text" id="regName" placeholder="Введите ваше имя" required>
+        </div>
+        <div class="form-group">
+          <label>Возраст</label>
+          <input type="number" id="regAge" min="14" max="100" placeholder="Ваш возраст" required>
+        </div>
+        <div class="form-group">
+          <label>Номер телефона</label>
+          <input type="tel" id="regPhone" placeholder="+992 XX XXX XX XX" required>
+        </div>
+        <div class="form-group">
+          <label>Пароль</label>
+          <input type="password" id="regPass1" placeholder="Придумайте пароль" required>
+        </div>
+        <div class="form-group">
+          <label>Повторите пароль</label>
+          <input type="password" id="regPass2" placeholder="Повторите пароль" required>
+        </div>
+        <button type="submit" class="btn" style="width: 100%; margin-top: 5px;">Зарегистрироваться</button>
+      </form>
+      <div style="text-align: center; margin-top: 15px;">
+        <span style="font-size: 13px; color: #64748b;">Уже есть аккаунт? </span>
+        <a href="#" id="openLoginLink" style="font-size: 13px; color: var(--primary); font-weight: 600;">Войти</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Интеграция с Firebase, Спутниковой картой и геолокацией маршрута -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, remove, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      databaseURL: "https://complident-96f0e-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const appointmentsRef = ref(db, 'appointments');
+    const usersRef = ref(db, 'users');
+    const doctorsRef = ref(db, 'doctors');
+
+    let appointmentsMap = {};
+    let existingAppointments = [];
+    let activeUser = null;
+    let initialLoadDone = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUserName = localStorage.getItem('complident_user');
+      const isStaff = localStorage.getItem('complident_is_staff') === "true";
+      const isAdmin = localStorage.getItem('complident_is_admin') === "true";
+
+      if (savedUserName) {
+        if (isStaff) {
+          activeUser = { name: savedUserName, phone: "Сотрудник" };
+          applyUserSession(activeUser, true, isAdmin);
+        } else {
+          get(child(ref(db), 'users')).then((snapshot) => {
+            const users = snapshot.val() || {};
+            const found = Object.values(users).find(u => u.name === savedUserName);
+            if (found) {
+              activeUser = found;
+              applyUserSession(activeUser, false, false);
+            }
+          });
+        }
+      }
+
+      if ("Notification" in window && Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('bookingDate');
+      dateInput.min = todayStr;
+      dateInput.value = todayStr;
+
+      loadDoctorsList();
+    });
+
+    // Инициализация спутниковой карты
+    const clinicCoords = [38.567784, 68.784720];
+    const map = L.map('map').setView(clinicCoords, 17);
+    
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri',
+      maxZoom: 19
+    }).addTo(map);
+
+    const clinicMarker = L.marker(clinicCoords).addTo(map).bindPopup('<b>Стоматология Complident</b><br>Мы здесь!').openPopup();
+
+    let userMarker = null;
+    let routeLine = null;
+
+    // Функция геопозиции и построения маршрута
+    window.locateUserRoute = () => {
+      if (!navigator.geolocation) {
+        alert('Ваш браузер не поддерживает определение геолокации.');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userCoords = [position.coords.latitude, position.coords.longitude];
+
+          // Если маркер пользователя уже был, удаляем его
+          if (userMarker) map.removeLayer(userMarker);
+          if (routeLine) map.removeLayer(routeLine);
+
+          // Добавляем маркер пользователя
+          userMarker = L.marker(userCoords, {
+            icon: L.divIcon({
+              className: 'custom-user-icon',
+              html: '<div style="background:#0284c7; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>',
+              iconSize: [16, 16]
+            })
+          }).addTo(map).bindPopup('Вы здесь').openPopup();
+
+          // Рисуем линию маршрута до клиники
+          routeLine = L.polyline([userCoords, clinicCoords], {
+            color: '#0284c7',
+            weight: 5,
+            opacity: 0.8,
+            dashArray: '10, 10'
+          }).addTo(map);
+
+          // Масштабируем карту, чтобы были видны обе точки
+          const bounds = L.latLngBounds([userCoords, clinicCoords]);
+          map.fitBounds(bounds, { padding: [50, 50] });
+        },
+        (error) => {
+          alert('Не удалось получить ваше местоположение. Проверьте разрешение геолокации.');
+        },
+        { enableHighAccuracy: true }
+      );
+    };
+
+    document.getElementById('bookingDate').addEventListener('change', (e) => {
+      updateAvailableTimes(e.target.value);
+    });
+
+    function updateAvailableTimes(selectedDate) {
+      const select = document.getElementById('bookingTime');
+      const options = select.querySelectorAll('option');
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const nowHour = new Date().getHours();
+      const isToday = (selectedDate === todayStr);
+
+      const takenTimes = existingAppointments
+        .filter(app => app.date === selectedDate)
+        .map(app => app.time);
+
+      options.forEach(opt => {
+        if (!opt.value) return;
+        
+        let isPastTime = false;
+        if (isToday) {
+          const parts = opt.value.split(' - ');
+          if (parts.length === 2) {
+            const endHour = parseInt(parts[1].split(':')[0]);
+            if (nowHour >= endHour) {
+              isPastTime = true;
+            }
+          }
+        }
+
+        if (isPastTime) {
+          opt.disabled = true;
+          opt.textContent = `${opt.value} (Прошло)`;
+        } else if (takenTimes.includes(opt.value)) {
+          opt.disabled = true;
+          opt.textContent = `${opt.value} (Занято)`;
+        } else {
+          opt.disabled = false;
+          opt.textContent = opt.value;
+        }
+      });
+
+      if (select.selectedOptions[0] && select.selectedOptions[0].disabled) {
+        select.value = "";
+      }
+    }
+
+    function playNotificationSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.3);
+      } catch (e) {
+        console.log("Звук заблокирован браузером");
+      }
+    }
+
+    function triggerPushNotification(title, bodyText) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, {
+          body: bodyText,
+          icon: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png"
+        });
+      }
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      if (!activeUser) {
+        alert('Пожалуйста, войдите в аккаунт или зарегистрируйтесь для записи!');
+        closeModal();
+        openLoginModal();
+        return;
+      }
+
+      const date = document.getElementById('bookingDate').value;
+      const time = document.getElementById('bookingTime').value;
+
+      if (!time) {
+        alert('Пожалуйста, выберите доступное время!');
+        return;
+      }
+
+      const isTaken = existingAppointments.some(app => app.date === date && app.time === time);
+      if (isTaken) {
+        alert(`К сожалению, выбранный интервал ${time} на дату ${date} уже занят! Выберите другое время.`);
+        updateAvailableTimes(date);
+        return;
+      }
+
+      const newBooking = {
+        name: activeUser.name,
+        phone: activeUser.phone,
+        date: date,
+        time: time,
+        timestamp: Date.now()
+      };
+
+      push(appointmentsRef, newBooking)
+        .then(() => {
+          alert('Спасибо! Ваша запись успешно подтверждена.');
+          closeModal();
+          document.getElementById('bookingForm').reset();
+        })
+        .catch((error) => alert('Ошибка при отправке: ' + error.message));
+    });
+
+    onValue(appointmentsRef, (snapshot) => {
+      const tbody = document.getElementById('liveAppointmentsTable');
+      tbody.innerHTML = '';
+
+      appointmentsMap = {};
+      const data = snapshot.val();
+      
+      if (!data) {
+        existingAppointments = [];
+        tbody.innerHTML = '<tr><td colspan="5">Записей пока нет</td></tr>';
+        document.getElementById('badgeCount').innerHTML = '';
+        renderPatientAppointments();
+        initialLoadDone = true;
+        return;
+      }
+
+      appointmentsMap = data;
+      existingAppointments = Object.values(data);
+      const listKeys = Object.keys(data).reverse();
+
+      if (initialLoadDone && listKeys.length > previousAppointmentsCount) {
+        const latestApp = data[listKeys[0]];
+        playNotificationSound();
+        triggerPushNotification("Новая запись в Complident!", `Пациент: ${latestApp.name}\nДата: ${latestApp.date} в ${latestApp.time}`);
+      }
+
+      previousAppointmentsCount = listKeys.length;
+      initialLoadDone = true;
+
+      listKeys.forEach(key => {
+        const app = data[key];
+        const cleanPhone = app.phone.replace(/[^0-9]/g, '');
+        const waText = encodeURIComponent(`Здравствуйте, ${app.name}! Напоминаем о вашей записи в стоматологию Complident на ${app.date} в интервал ${app.time}. Ждем вас!`);
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${app.name}</strong></td>
+          <td>${app.phone}</td>
+          <td>${app.date}</td>
+          <td>${app.time}</td>
+          <td>
+            <a href="https://wa.me/${cleanPhone}?text=${waText}" target="_blank" class="btn-wa">
+              <i class="fa-brands fa-whatsapp"></i> Напомнить
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('badgeCount').innerHTML = `<span class="badge-count">Всего: ${listKeys.length}</span>`;
+
+      const currentDateVal = document.getElementById('bookingDate').value;
+      if (currentDateVal) {
+        updateAvailableTimes(currentDateVal);
+      }
+
+      renderPatientAppointments();
+    });
+
+    let previousAppointmentsCount = 0;
+
+    document.getElementById('addDoctorForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('newDocName').value.trim();
+      const login = document.getElementById('newDocLogin').value.trim();
+      const pass = document.getElementById('newDocPass').value.trim();
+
+      const newDoctor = { name, login, pass };
+
+      push(doctorsRef, newDoctor)
+        .then(() => {
+          alert(`Врач ${name} успешно добавлен!`);
+          document.getElementById('addDoctorForm').reset();
+          loadDoctorsList();
+        })
+        .catch(err => alert('Ошибка при добавлении врача: ' + err.message));
+    });
+
+    function loadDoctorsList() {
+      const tbody = document.getElementById('doctorsTableBody');
+      if (!tbody) return;
+
+      onValue(doctorsRef, (snapshot) => {
+        tbody.innerHTML = '';
+        const data = snapshot.val();
+        if (!data) {
+          tbody.innerHTML = '<tr><td colspan="3">Добавленных врачей пока нет</td></tr>';
+          return;
+        }
+
+        Object.entries(data).forEach(([id, doc]) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${doc.name}</strong></td>
+            <td>${doc.login}</td>
+            <td><button class="btn-danger" onclick="deleteDoctor('${id}')">Удалить доступ</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }, { onlyOnce: true });
+    }
+
+    window.deleteDoctor = (docId) => {
+      if (confirm('Вы уверены, что хотите удалить этого врача? Он больше не сможет войти в систему.')) {
+        remove(ref(db, `doctors/${docId}`))
+          .then(() => {
+            alert('Врач удален.');
+            loadDoctorsList();
+          })
+          .catch(err => alert('Ошибка при удалении: ' + err.message));
+      }
+    };
+
+    window.renderPatientAppointments = () => {
+      const container = document.getElementById('patientAppointmentsList');
+      if (!container) return;
+
+      if (!activeUser) {
+        container.innerHTML = '<p style="color: #64748b; font-size: 14px;">Войдите в аккаунт, чтобы просмотреть записи.</p>';
+        return;
+      }
+
+      const myAppts = Object.entries(appointmentsMap).filter(([id, app]) => app.name === activeUser.name);
+
+      if (myAppts.length === 0) {
+        container.innerHTML = '<p style="color: #64748b; font-size: 14px;">У вас пока нет активных записей.</p>';
+        return;
+      }
+
+      let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+      myAppts.forEach(([id, app]) => {
+        html += `
+          <div style="background: var(--light); padding: 15px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>Дата:</strong> ${app.date} <br>
+              <strong>Интервал:</strong> ${app.time} <br>
+              <span style="font-size: 12px; color: #64748b;">Телефон: ${app.phone}</span>
+            </div>
+            <button class="btn-danger" onclick="cancelAppointment('${id}')">Отменить</button>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    };
+
+    window.cancelAppointment = (appointmentId) => {
+      if (confirm('Вы уверены, что хотите отменить эту запись?')) {
+        remove(ref(db, `appointments/${appointmentId}`))
+          .then(() => alert('Запись успешно отменена.'))
+          .catch((err) => alert('Ошибка при отмене: ' + err.message));
+      }
+    };
+
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const age = document.getElementById('regAge').value;
+      const phone = document.getElementById('regPhone').value.trim();
+      const pass1 = document.getElementById('regPass1').value;
+      const pass2 = document.getElementById('regPass2').value;
+
+      if (pass1 !== pass2) {
+        alert('Пароли не совпадают!');
+        return;
+      }
+
+      get(child(ref(db), 'users')).then((snapshot) => {
+        const users = snapshot.val() || {};
+        const userList = Object.values(users);
+        const exists = userList.some(u => u.name.toLowerCase() === name.toLowerCase());
+
+        if (exists) {
+          alert('Аккаунт с таким именем уже зарегистрирован!');
+          return;
+        }
+
+        const newUser = {
+          name: name,
+          age: age,
+          phone: phone,
+          pass: pass1,
+          createdAt: Date.now()
+        };
+
+        push(usersRef, newUser)
+          .then(() => {
+            alert(`Регистрация прошла успешно, ${name}!`);
+            closeRegisterModal();
+            activeUser = newUser;
+            loginUser(activeUser, false, false);
+          })
+          .catch((err) => alert('Ошибка регистрации: ' + err.message));
+      });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const login = document.getElementById('staffLogin').value.trim();
+      const pass = document.getElementById('staffPassword').value;
+
+      if (login === 'Nasim' && pass === 'NasimComplident') {
+        activeUser = { name: 'Насим (Главный врач)', phone: '+992900000000' };
+        loginUser(activeUser, true, true);
+        return;
+      } 
+      if (login === 'admin' && pass === '12345') {
+        activeUser = { name: 'Администратор', phone: '+992900000000' };
+        loginUser(activeUser, true, true);
+        return;
+      }
+
+      get(child(ref(db), 'doctors')).then((snapshot) => {
+        const docs = snapshot.val() || {};
+        const docList = Object.values(docs);
+        const foundDoc = docList.find(d => d.login === login && d.pass === pass);
+
+        if (foundDoc) {
+          activeUser = { name: foundDoc.name, phone: '+992900000000' };
+          loginUser(activeUser, true, false);
+          return;
+        }
+
+        get(child(ref(db), 'users')).then((userSnap) => {
+          const users = userSnap.val() || {};
+          const userList = Object.values(users);
+          const foundUser = userList.find(u => u.name.toLowerCase() === login.toLowerCase() && u.pass === pass);
+
+          if (foundUser) {
+            activeUser = foundUser;
+            loginUser(activeUser, false, false);
+          } else {
+            alert('Неверный логин или пароль!');
+          }
+        });
+      }).catch((err) => alert('Ошибка авторизации: ' + err.message));
+    });
+
+    function loginUser(userObj, isStaff, isAdmin) {
+      localStorage.setItem('complident_user', userObj.name);
+      localStorage.setItem('complident_is_staff', isStaff ? "true" : "false");
+      localStorage.setItem('complident_is_admin', isAdmin ? "true" : "false");
+      applyUserSession(userObj, isStaff, isAdmin);
+      closeLoginModal();
+    }
+
+    function applyUserSession(userObj, isStaff, isAdmin) {
+      document.getElementById('headerLoginBtn').innerHTML = `<i class="fa-solid fa-user-check"></i> ${userObj.name}`;
+
+      if (isStaff) {
+        document.getElementById('currentUserTitle').innerText = `(${userObj.name})`;
+        document.getElementById('clientWebsite').style.display = 'none';
+        document.getElementById('staffPanel').style.display = 'block';
+        document.getElementById('myAppointmentsNav').style.display = 'none';
+
+        if (isAdmin) {
+          document.getElementById('adminStaffSection').style.display = 'block';
+          loadDoctorsList();
+        } else {
+          document.getElementById('adminStaffSection').style.display = 'none';
+        }
+      } else {
+        document.getElementById('staffPanel').style.display = 'none';
+        document.getElementById('clientWebsite').style.display = 'block';
+        document.getElementById('myAppointmentsNav').style.display = 'block';
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('complident_user');
+      localStorage.removeItem('complident_is_staff');
+      localStorage.removeItem('complident_is_admin');
+      activeUser = null;
+      document.getElementById('staffPanel').style.display = 'none';
+      document.getElementById('clientWebsite').style.display = 'block';
+      document.getElementById('myAppointmentsNav').style.display = 'none';
+      document.getElementById('headerLoginBtn').innerHTML = `<i class="fa-solid fa-user"></i> Вход`;
+      document.getElementById('staffLogin').value = '';
+      document.getElementById('staffPassword').value = '';
+    });
+
+    document.getElementById('sendChatBtn').addEventListener('click', () => {
+      const input = document.getElementById('chatInput');
+      if(!input.value.trim()) return;
+      const chatBox = document.getElementById('chatBox');
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg';
+      msg.innerHTML = `<strong>${activeUser ? activeUser.name : 'Сотрудник'}:</strong> ${input.value}`;
+      chatBox.appendChild(msg);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    window.openModal = () => {
+      if (!activeUser) {
+        alert('Пожалуйста, сначала войдите в свой аккаунт или зарегистрируйтесь!');
+        openLoginModal();
+        return;
+      }
+      document.getElementById('patientName').value = activeUser.name;
+      document.getElementById('patientPhone').value = activeUser.phone;
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('bookingDate').value = todayStr;
+      updateAvailableTimes(todayStr);
+
+      document.getElementById('modal').style.display = 'flex';
+    };
+
+    window.closeModal = () => document.getElementById('modal').style.display = 'none';
+    window.openLoginModal = () => document.getElementById('loginModal').style.display = 'flex';
+    window.closeLoginModal = () => document.getElementById('loginModal').style.display = 'none';
+    window.openRegisterModal = () => {
+      closeLoginModal();
+      document.getElementById('registerModal').style.display = 'flex';
+    };
+    window.closeRegisterModal = () => document.getElementById('registerModal').style.display = 'none';
+    
+    window.openMyAppointmentsModal = () => {
+      renderPatientAppointments();
+      document.getElementById('myAppointmentsModal').style.display = 'flex';
+    };
+    window.closeMyAppointmentsModal = () => document.getElementById('myAppointmentsModal').style.display = 'none';
+
+    document.getElementById('closeBookingBtn').onclick = window.closeModal;
+    document.getElementById('closeLoginBtn').onclick = window.closeLoginModal;
+    document.getElementById('closeRegBtn').onclick = window.closeRegisterModal;
+    document.getElementById('closeMyApptsBtn').onclick = window.closeMyAppointmentsModal;
+    document.getElementById('openRegLink').onclick = window.openRegisterModal;
+    window.openLoginLink = () => {
+      window.closeRegisterModal();
+      window.openLoginModal();
+    };
+
+    window.calculateTotal = () => {
+      let total = 0;
+      document.querySelectorAll('.calc-option input[type="checkbox"]').forEach(cb => {
+        if (cb.checked) total += parseInt(cb.value);
+      });
+      document.getElementById('totalPrice').innerText = `Итого: ${total} TJS`;
+    };
+
+    window.toggleFaq = (element) => {
+      const answer = element.nextElementSibling;
+      answer.style.display = (answer.style.display === 'block') ? 'none' : 'block';
+    };
+  </script>
+</body>
+</html>
